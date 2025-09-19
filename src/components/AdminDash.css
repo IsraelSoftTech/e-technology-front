@@ -1,0 +1,14 @@
+.admin-dash{padding:2rem;max-width:1200px;margin:0 auto}
+.dash-header{text-align:center;margin-bottom:3rem}
+.dash-header h1{color:#FE7235;font-size:2.5rem;margin-bottom:1rem}
+.dash-header p{color:#6b7280;font-size:1.1rem}
+.dash-content{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+@media (max-width: 640px){
+  .admin-dash{padding:1rem}
+  .dash-header{display:none !important}
+  .dash-content{grid-template-columns:1fr}
+}
+.stat-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1.25rem;display:flex;flex-direction:column;align-items:flex-start;gap:.5rem;box-shadow:0 2px 4px rgba(0,0,0,.05)}
+.stat-count{font-size:2rem;font-weight:800;color:#FE7235}
+.stat-label{color:#6b7280;font-weight:600}
+.dash-analytics{margin-top:1.5rem}

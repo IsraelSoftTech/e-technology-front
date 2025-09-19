@@ -1,0 +1,6 @@
+.header{background:#fff;padding:1.5rem 0}
+.header-content{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:center}
+.nav{display:flex;gap:2rem}
+.nav-link{color:#6b7280;text-decoration:none;font-weight:500;transition:color .2s;font-size:.95rem}
+.nav-link:hover{color:#0077B6}
+.nav-link.active{color:#0077B6;font-weight: 600;}

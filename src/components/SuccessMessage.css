@@ -1,0 +1,9 @@
+.success-msg{position:fixed;top:2rem;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:1.25rem 1.25rem;z-index:1000;animation:pop .2s ease-out}
+.success-msg-content{display:flex;align-items:center;gap:1rem}
+.success-msg .text{font-size:0.9rem;font-weight:300;color:#1f2937}
+.success-msg .close{margin-left:auto;background:#f3f4f6;border:none;border-radius:999px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.success-msg .close:hover{background:#e5e7eb}
+.success-msg .dot{color:#FE7235;font-size:1.1rem;font-weight:900}
+@keyframes pop{from{transform:translateX(-50%) scale(.96);opacity:.9}to{transform:translateX(-50%) scale(1);opacity:1}}
+@media (max-width: 480px){.success-msg{left:1rem;right:1rem;transform:none}}
+

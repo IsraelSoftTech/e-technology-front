@@ -1,0 +1,13 @@
+.verify{padding:1rem}
+.table-wrap{overflow:auto}
+.table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px}
+.table th,.table td{padding:.75rem .9rem;text-align:left;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+.table th{color:#6b7280;font-weight:700}
+.table tr:last-child td{border-bottom:none}
+.empty{color:#9ca3af;text-align:center}
+.status.approved{color:#10b981;font-weight:700}
+.status.rejected{color:#dc2626;font-weight:700}
+.status.pending{color:#f59e0b;font-weight:700}
+.icon-btn{background:#f3f4f6;border:none;border-radius:8px;padding:.4rem .5rem;margin-right:.35rem;cursor:pointer}
+.icon-btn.danger{background:#fee2e2}
+

@@ -1,0 +1,4 @@
+.logo-wrap{display:flex;align-items:center;gap:.6rem}
+.logo-img{height:40px;width:40px;object-fit:contain}
+.logo-text{font-weight:800;letter-spacing:.08em;color:#0077B6;font-size:1.1rem}
+@media (min-width:768px){.logo-img{height:44px;width:44px}.logo-text{font-size:1.2rem}}

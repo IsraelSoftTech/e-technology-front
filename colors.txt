@@ -1,0 +1,4 @@
+Background (White): #FFFFFF | rgb(255, 255, 255)
+CTA (Orange): #FE7235 | rgb(254, 114, 53)
+Headings/Standout (Sea Blue): #0077B6 | rgb(0, 119, 182)
+Text (Grey Black): #212121 | rgb(33, 33, 33)

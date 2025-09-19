@@ -1,0 +1,32 @@
+.admin-course{padding:1rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.info-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1.25rem;box-shadow:0 2px 4px rgba(0,0,0,.05)}
+.info-card h3{margin:0 0 .35rem;color:#0f172a}
+.info-card .num{font-size:1.75rem;font-weight:800;color:#FE7235}
+.actions{margin:1rem 0}
+.btn{background:#FE7235;border:none;border-radius:8px;padding:.6rem 1rem;font-weight:600;cursor:pointer}
+.btn.primary{background:#FE7235;color:#fff}
+.btn.small{padding:.4rem .7rem}
+.btn.danger{background:#dc2626;color:#fff}
+.icon-btn{background:#f3f4f6;border:none;border-radius:8px;padding:.4rem .5rem;margin-right:.35rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.icon-btn svg{width:18px;height:18px;color:#374151}
+.icon-btn:hover{background:#e5e7eb}
+.icon-btn.danger svg{color:#dc2626}
+.course-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1rem;box-shadow:0 2px 4px rgba(0,0,0,.05);margin-bottom:1rem}
+.course-form .row{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.8rem}
+.course-form .cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.course-form label{color:#6b7280;font-size:.9rem}
+.course-form input{border:1px solid #e5e7eb;border-radius:8px;padding:.6rem .75rem;font-family:inherit}
+.levels{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{display:inline-flex;align-items:center;gap:.35rem;background:#f3f4f6;border-radius:999px;padding:.35rem .6rem}
+.table-wrap{overflow:auto}
+.table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px}
+.table th,.table td{padding:.75rem .9rem;text-align:left;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+.table th{color:#6b7280;font-weight:700}
+.table tr:last-child td{border-bottom:none}
+.table .empty{text-align:center;color:#9ca3af}
+.thumb{width:40px;height:40px;border-radius:50%;object-fit:cover}
+@media (max-width: 640px){
+  .course-form .cols{grid-template-columns:1fr}
+}
+

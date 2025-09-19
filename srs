@@ -1,0 +1,386 @@
+Software Requirements Specification (SRS)
+
+Project: E‑Learning Platform (Node.js backend, PostgreSQL, React frontend)
+
+
+Target delivery: 2 months from project start
+
+1. Purpose
+
+This SRS describes the functional and non‑functional requirements for an e‑learning platform where administrators manage the system, users can register as students or teachers, payments are handled via MTN MoMo and Orange Money, classes run via Google Meet, and teachers/students interact through courses, scheduling and attendance features. The system will be implemented using Node.js, PostgreSQL, and React.
+
+2. Scope
+
+The platform supports:
+
+Admin user (default admin account pre‑seeded)
+
+Teacher and student signup flows (teacher accounts require admin verification)
+
+Course creation and pricing by admin
+
+Enrollment by students after payment
+
+Class scheduling and Google Meet link generation
+
+Attendance recording by teachers
+
+Payment integration with mobile money (MTN MoMo and Orange Money)
+
+Document upload for teacher verification (PDF)
+
+
+Out of scope (for initial 2‑month delivery):
+
+Advanced analytics and reporting (basic reports only)
+
+Mobile native apps (web responsive only)
+
+Multi‑tenant support
+
+
+3. Definitions, Acronyms, Abbreviations
+
+SRS: Software Requirements Specification
+
+JWT: JSON Web Token
+
+API: Application Programming Interface
+
+Momo: MTN Mobile Money
+
+Orange Money: Orange mobile payment service
+
+Admin: System administrator
+
+Role: student or teacher
+
+
+4. System Overview
+
+A three‑tier web application:
+
+Frontend: React application (SPA) with components for login, registration, dashboard, course list, class component, payment flows.
+
+Backend: Node.js (Express or equivalent) RESTful API with authentication, authorization, business logic, and integrations.
+
+Database: PostgreSQL for persistent storage.
+
+External services: Payment provider APIs (MTN MoMo, Orange Money), Google Calendar / Google Meet for video conferencing, email/SMS gateway for notifications (optional).
+
+
+5. Stakeholders
+
+Project owner / School or organization
+
+Admin users (managing content and users)
+
+Teachers (create classes, attendance)
+
+Students (enroll, attend class)
+
+Payment providers (MTN, Orange)
+
+
+6. Major Constraints
+
+2‑month timeline: features prioritized for MVP
+
+Use of Google Meet for live classes (requires Google Workspace APIs or standard Meet link generation approach)
+
+Compliance with payment providers’ API/KYC rules
+
+Document uploads restricted to PDF and stored securely
+
+
+
+Functional Requirements
+
+7. User Roles & Authentication
+
+7.1 Default Admin
+
+System will include one or more default admin accounts seeded at deployment. Credentials must be changeable.
+
+Admin can perform all administrative actions.
+
+
+7.2 Registration & Login
+
+Users can register with: full name, email, password, role (student or teacher).
+
+Passwords stored hashed (bcrypt or Argon2).
+
+Login returns a JWT with role claims and expiry.
+
+Email verification optional (recommended) — for MVP may use email only for notifications.
+
+
+7.3 Teacher Verification
+
+If user selects role = teacher at registration, an additional required field appears: Qualification document (PDF) upload.
+
+Uploaded PDF stored in secure object storage (or filesystem with restricted access) and linked to the teacher profile.
+
+The teacher account status set to pending until admin reviews and approves or rejects.
+
+Admin UI shows pending teacher verification queue with uploaded document preview or download link.
+
+
+8. Admin Features
+
+Create, edit, delete courses. Course fields: title, description, price (currency), duration, capacity (optional), tags.
+
+View and manage users (search, view profile, activate/deactivate accounts, delete user).
+
+Approve or reject teacher verification requests with optional comment.
+
+Assign verified teachers to courses.
+
+Schedule classes for any course or for courses they manage (or allow teachers to schedule after they've paid — see business rule).
+
+Force cancel or delete classes; notify enrolled students.
+
+
+9. Teacher Features
+
+After verification, teachers can be assigned to courses by admin or request assignment.
+
+Teachers must pay a platform fee or subscription (business rule) before being allowed to schedule classes. The system will block the 'schedule class' UI until payment confirmation.
+
+Create class sessions (date/time, duration, description). When scheduling, a Google Meet link must be created/associated.
+
+Reject/approve student enrollment requests (depending on course settings). For open enrollment, students enroll automatically upon payment.
+
+Take attendance for a scheduled class (mark present/absent; optionally allow rollcall by student check‑in).
+
+View roster of enrolled students and class history.
+
+
+10. Student Features
+
+Browse available courses and view details including price and schedule.
+
+Enroll in a course by paying the course fee via MTN MoMo or Orange Money.
+
+Once enrolled and payment confirmed, student sees the course dashboard and scheduled classes.
+
+Join a class via "Click to attend" button which opens the Google Meet link.
+
+View attendance history and course materials (if any).
+
+
+11. Payments
+
+When admin creates a course, they must set a price (amount & currency). Student can only enroll after successful payment.
+
+Payment providers: MTN MoMo and Orange Money.
+
+Backend integrates with payment provider SDKs/APIs to: create payment requests, verify callbacks/webhooks, and update enrollment status upon successful payment.
+
+Payment states tracked: pending, success, failed, refunded.
+
+Payment records associated with user, course, payment provider transaction id and timestamp.
+
+Admin dashboard shows payments list and reconciliation tools.
+
+
+12. Classes & Google Meet Integration
+
+When a class is scheduled (by admin or teacher, per permissions), system will create/associate a Google Meet link. Two commonly used approaches:
+
+Create an event in Google Calendar with conferenceData and retrieve the Meet link (requires Google OAuth service account / API access), or
+
+Use a preconfigured meeting URL pattern for a given class session if API access is not available (less robust).
+
+
+At scheduled class time the class component will show an active card/button: "Click to attend"; clicking opens the Meet link in a new tab.
+
+System will ensure that enrolled students and the assigned teacher see the class card in their dashboard when the class is scheduled and within a configurable window (e.g. starting 15 minutes before).
+
+
+13. Attendance
+
+Teachers can take attendance during or after class — each attendance record stores class_id, student_id, status (present/absent/late), timestamp, and optional notes.
+
+Attendance reports per class, per student and exportable (CSV).
+
+Optionally allow automated check‑in by students clicking a ‘I’m here’ button inside the class component (if desired later).
+
+
+14. Notifications
+
+Email notifications for key events: account verification decision, enrollment confirmation, payment receipts, class scheduled/cancelled, class starting reminder.
+
+Optional SMS notifications via a gateway (if configured) — recommended for payment and class reminders.
+
+
+15. File Uploads
+
+Teacher qualification documents: PDF only. Size limit (e.g. 10 MB). Stored securely, served via authenticated endpoints.
+
+Course materials (future enhancement) — optional for MVP.
+
+Non‑Functional Requirements
+
+16. Performance
+
+Support up to a few thousand users in MVP; typical API response time < 300ms for read operations under normal load.
+
+Background jobs (email, payment reconciliation) handled by a job queue (e.g. BullMQ, Redis).
+
+
+17. Security
+
+Use HTTPS everywhere.
+
+Authentication: JWT with secure expiry and refresh tokens. Protect sensitive endpoints.
+
+Passwords hashed with bcrypt/Argon2.
+
+Protect file uploads and serve only to authorized users.
+
+Validate and sanitize all inputs to prevent SQL injection, XSS, CSRF.
+
+Limit login attempts or use rate limiting / IP blocking on auth endpoints.
+
+
+18. Availability & Scalability
+
+Initial deployment single instance behind a load balancer (optionally). Use managed Postgres.
+
+Stateless backend where possible to scale horizontally; sessions via JWT.
+
+
+19. Maintainability
+
+Clean modular code, documented APIs, and tests for critical paths (auth, payments, scheduling).
+
+
+20. Localization
+
+System will use a default language (English). Design text strings for easy localization later.
+
+Data Model (High Level)
+
+Tables (suggested)
+
+users: id (PK), name, email, password_hash, role (student|teacher|admin), status (active|pending|rejected|disabled), created_at, updated_at
+
+teacher_docs: id, user_id (FK), file_path, filename, uploaded_at, admin_comment, review_status
+
+courses: id, title, description, price_amount, price_currency, capacity, created_by (admin id), created_at
+
+course_assignments: id, course_id, teacher_id, assigned_at
+
+classes: id, course_id, teacher_id, start_time (timestamp), end_time, meet_link, status (scheduled|cancelled|completed), created_at
+
+enrollments: id, course_id, student_id, status (pending|active|rejected|cancelled), payment_id, enrolled_at
+
+payments: id, enrollment_id, user_id, amount, currency, provider (mtn|orange), provider_txn_id, status, created_at
+
+attendance: id, class_id, student_id, status (present|absent|late), marked_by, marked_at
+
+notifications: id, user_id, type, payload, sent_at, read
+
+API Endpoints (Example)
+> Use RESTful patterns. Secure endpoints with JWT and role checks.
+POST /api/auth/register — register user (role, upload doc if teacher)
+
+POST /api/auth/login — login (email/password) → returns JWT
+
+GET /api/users/me — get current user
+
+GET /api/admin/teachers/pending — list pending teacher verifications (admin)
+
+POST /api/admin/teachers/:id/verify — approve/reject teacher (admin)
+
+POST /api/admin/courses — create course (admin)
+
+GET /api/courses — list courses
+
+POST /api/courses/:id/enroll — begin enrollment (creates payment request)
+
+POST /api/payments/webhook — handle payment provider callbacks
+
+POST /api/classes — schedule class (teacher/admin) — returns meet_link
+
+GET /api/classes/upcoming — list upcoming classes for user
+
+POST /api/classes/:id/attendance — mark attendance (teacher)
+
+
+Business Rules & Validation
+
+Teacher accounts must be verified before being assigned or allowed to schedule classes.
+
+Teachers must have a successful payment for any required fee before scheduling classes.
+
+Students must have successful payment for course to be enrolled (payments confirm enrollment).
+
+Qualification documents must be PDF and under size limit.
+
+Google Meet links must be unique per class.
+
+UI / UX (High level)
+
+Key pages/components:
+
+Landing / Course marketplace
+
+Signup / Login
+
+Dashboard (role-specific)
+
+Admin panel: user management, course management, payments, teacher verification queue
+
+Course page: details, enroll/pay CTA
+
+Class component: upcoming sessions, "Click to attend" button, attendance button (teacher view)
+
+Profile: upload docs, view payments, change password
+
+
+Design notes:
+
+Responsive layout (desktop first), clear CTA for enroll and join class
+
+Use modals for uploads and confirmations
+
+Acceptance Criteria (MVP)
+
+1. Default admin can log in using seeded credentials.
+
+2. Users can register as student or teacher; teacher registration requires PDF upload and sets account pending.
+
+3. Admin can view pending teacher verifications and approve/reject them.
+
+4. Admin can create courses with a price.
+
+5. Students can pay via at least one mobile money provider (MTN MoMo or Orange Money) and enroll when payment confirmed.
+
+6. Verified teachers can be assigned to courses and schedule classes after paying any required teacher fee.
+
+7. Scheduled classes produce a Google Meet link and enrolled users see a "Click to attend" button in their dashboard when the class is scheduled.
+
+
+8. Teachers can mark attendance and export attendance per class.
+
+
+Test Plan (High level)
+
+Unit tests for authentication, payments, and class scheduling logic.
+
+Integration tests for payment webhook flows and enrolment state transitions.
+
+End‑to‑end tests for registration, verification, enrollment and class join flows.
+
+Manual tests: file upload validation, email notifications, Google Meet link generation.
+
+Risks & Mitigations
+
+Payment provider complexity — obtain sandbox accounts early and implement one provider first.
+
+Google Meet API access limitations — confirm approach early; if API access is restricted, use calendar-based event creation or provide join link management manually.
+
+File storage security — store docs in restricted storage (S3/GCS) and serve via signed URLs.

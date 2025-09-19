@@ -1,0 +1,14 @@
+.auth-wrap{min-height:100dvh;background:linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);display:flex;flex-direction:column}
+/* Allow scrolling if the auth card is taller than the viewport */
+.auth-main{flex:1;display:flex;align-items:center;justify-content:center;padding:4.5rem 2rem 2rem;overflow:auto}
+.auth-card{width:100%;max-width:420px;background:#fff;border-radius:16px;box-shadow:0 10px 25px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05);padding:2.5rem;display:flex;flex-direction:column;gap:1.5rem;border:1px solid rgba(255,255,255,.8);margin-top:1rem}
+.titles h1{margin:0;color:#FE7235;text-align:center;font-size:1.875rem;font-weight:700;letter-spacing:-.025em}
+.titles p{text-align:center;color:#6b7280;margin:0;font-size:.9rem;line-height:1.5}
+.auth-side{display:none}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .auth-main{padding:3rem 1rem 1rem}
+  .auth-card{padding:2rem;max-width:100%}
+  .titles h1{font-size:1.5rem}
+}

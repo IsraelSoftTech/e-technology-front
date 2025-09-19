@@ -1,0 +1,9 @@
+.user-dash{padding:2rem;max-width:1200px;margin:0 auto}
+.dash-header{text-align:center;margin-bottom:3rem}
+.dash-header h1{color:#FE7235;font-size:2.5rem;margin-bottom:1rem}
+.dash-header p{color:#6b7280;font-size:1.1rem}
+.dash-content{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.feature-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1.5rem;box-shadow:0 2px 4px rgba(0,0,0,.05);transition:transform .2s,box-shadow .2s}
+.feature-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.feature-card h3{color:#0077B6;margin-bottom:.5rem;font-size:1.2rem}
+.feature-card p{color:#6b7280;margin:0;font-size:.9rem}

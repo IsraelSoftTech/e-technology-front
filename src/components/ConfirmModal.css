@@ -1,0 +1,8 @@
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal-card{width:90%;max-width:420px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.2);padding:1.25rem}
+.modal-title{margin:0 0 .5rem;color:#111827}
+.modal-message{margin:0 0 1rem;color:#6b7280}
+.modal-actions{display:flex;justify-content:flex-end;gap:.5rem}
+.modal-btn{background:#f3f4f6;border:none;border-radius:8px;padding:.55rem .9rem;font-weight:600;cursor:pointer}
+.modal-btn.danger{background:#dc2626;color:#fff}
+

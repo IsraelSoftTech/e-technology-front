@@ -1,0 +1,21 @@
+.dashboard{min-height:100vh;background:#f9fafb}
+.dashboard-header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #e5e7eb;padding:1rem 0}
+.header-content{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:center}
+.header-content .logo-wrap{margin-left:0}
+.header-content .user-info{margin-left:auto}
+.header-content h1{color:#FE7235;margin:0;font-size:1.5rem}
+.user-info{display:flex;align-items:center;gap:1rem}
+.user-info span{color:#6b7280;font-weight:500}
+.avatar{width:36px;height:36px;border-radius:999px;background:#e5e7eb;color:#111827;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
+@media (max-width: 1023.98px){
+  .user-info .avatar{display:none}
+}
+.logout-btn{background:#dc2626;color:#fff;border:none;border-radius:6px;padding:.5rem 1rem;font-size:.875rem;cursor:pointer;transition:background .2s}
+.logout-btn:hover{background:#b91c1c}
+.dashboard-main{padding:0}
+/* Reserve left space for desktop sidebar so header/content aren't covered */
+@media (min-width: 1024px){
+  .dashboard-header{padding-left:240px}
+  .dashboard-main{padding-left:240px}
+  .header-content{max-width:unset}
+}

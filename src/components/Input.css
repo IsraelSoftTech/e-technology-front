@@ -1,0 +1,11 @@
+.input-field{display:flex;flex-direction:column;gap:.5rem;width:100%}
+.input-field label{font-size:.875rem;color:#374151;font-weight:600;letter-spacing:.025em}
+.control{position:relative}
+.control.with-eye input{padding-right:44px}
+input{width:100%;padding:.875rem 1rem;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#111827;outline:none;transition:all .2s ease;font-size:.875rem;font-weight:400;box-shadow:0 1px 2px 0 rgba(0,0,0,.05)}
+input::placeholder{color:#9ca3af;font-weight:400}
+input:focus{border-color:#FE7235;box-shadow:0 0 0 3px rgba(254,114,53,.1),0 1px 2px 0 rgba(0,0,0,.05)}
+input:hover{border-color:#d1d5db}
+.eye{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:transparent;border:none;padding:0;color:#6b7280;cursor:pointer;transition:color .2s ease}
+.eye:hover{color:#374151}
+.error{color:#dc2626;font-size:.75rem;margin-top:.25rem;font-weight:500}
