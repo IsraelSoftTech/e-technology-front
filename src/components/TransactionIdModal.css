@@ -1,0 +1,236 @@
+.transaction-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.transaction-modal-container {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: transactionModalSlideIn 0.3s ease-out;
+}
+
+@keyframes transactionModalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.transaction-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.transaction-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.transaction-close-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.transaction-close-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.transaction-modal-content {
+  padding: 24px;
+}
+
+.transaction-course-info {
+  margin-bottom: 24px;
+}
+
+.transaction-course-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.transaction-course-cost {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #059669;
+}
+
+.transaction-info-box {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 12px;
+}
+
+.transaction-info-icon {
+  color: #0ea5e9;
+  font-size: 1.25rem;
+  margin-top: 2px;
+}
+
+.transaction-info-content h5 {
+  margin: 0 0 8px 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0c4a6e;
+}
+
+.transaction-info-content p {
+  margin: 0;
+  color: #075985;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.transaction-form-group {
+  margin-bottom: 24px;
+}
+
+.transaction-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.transaction-form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.transaction-form-group input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.transaction-form-group input.error {
+  border-color: #ef4444;
+}
+
+.transaction-form-group input:disabled {
+  background: #f9fafb;
+  cursor: not-allowed;
+}
+
+.transaction-error-message {
+  margin-top: 8px;
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.transaction-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.transaction-btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.transaction-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.transaction-btn.secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.transaction-btn.secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.transaction-btn.primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.transaction-btn.primary:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.transaction-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: transactionSpin 1s linear infinite;
+}
+
+@keyframes transactionSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .transaction-modal-container {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .transaction-modal-content {
+    padding: 20px;
+  }
+  
+  .transaction-modal-actions {
+    flex-direction: column;
+  }
+  
+  .transaction-btn {
+    justify-content: center;
+  }
+}

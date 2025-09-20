@@ -4,6 +4,8 @@ import api from '../services/api'
 import './UserCourses.css'
 import { FiPlusCircle, FiCheckCircle } from 'react-icons/fi'
 import SuccessMessage from './SuccessMessage'
+import PaymentModal from './PaymentModal'
+import TransactionIdModal from './TransactionIdModal'
 
 function UserCourses(){
   const { user } = useAuth()
@@ -11,103 +13,48 @@ function UserCourses(){
   const [enrollments, setEnrollments] = useState([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
-  const [payStep, setPayStep] = useState('') // '' | 'method'
-  const [method, setMethod] = useState('fapshi') // fapshi|mtn|orange|card
-  const [form, setForm] = useState({ phone: '', card: '', expiry: '', cvc: '' })
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showTransactionModal, setShowTransactionModal] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
-  const [processing, setProcessing] = useState(false)
 
-  const handlePayment = async () => {
-    if (!user?.id || !selected) return;
-    
-    // Validate phone number for mobile money
-    if (method !== 'card' && !form.phone.trim()) {
-      setError('Please enter your mobile money number');
-      return;
+  const handleEnroll = (course) => {
+    if (!course.payment_link) {
+      setError('Payment link not available for this course')
+      return
     }
+    setSelected(course)
+    setShowPaymentModal(true)
+    setError('')
+  }
 
-    setProcessing(true);
-    setError('');
+  const handlePaymentComplete = () => {
+    setShowPaymentModal(false)
+    setShowTransactionModal(true)
+  }
 
+  const handleTransactionIdSubmit = async (transactionId) => {
     try {
-      const paymentData = {
+      // Submit transaction ID for verification
+      const response = await api.submitTransactionId({
         courseId: selected.id,
+        userId: user.id,
+        transactionId: transactionId,
         amount: selected.price_amount,
-        currency: selected.price_currency,
-        phone: form.phone,
-        paymentMethod: method
-      };
-
-      const response = await api.createPayment(paymentData);
+        currency: selected.price_currency
+      })
 
       if (response.success) {
-        setSuccess('Approval prompt sent. Please confirm on your phone.');
-
-        // If Fapshi returns a payment URL, some flows may open an approval page
-        if (response.paymentUrl) {
-          window.open(response.paymentUrl, '_blank');
-        }
-
-        // Start polling for payment status; enrollment activates on success
-        pollPaymentStatus(response.reference);
+        setSuccess('Transaction ID submitted successfully! Please wait for admin approval.')
+        setShowTransactionModal(false)
+        setSelected(null)
       } else {
-        setError(response.error || 'Payment creation failed');
+        throw new Error(response.error || 'Failed to submit transaction ID')
       }
     } catch (err) {
-      console.error('Payment error:', err);
-      setError(err.message || 'Payment failed. Please try again.');
-    } finally {
-      setProcessing(false);
+      throw new Error(err.message || 'Failed to submit transaction ID')
     }
-  };
-
-  const pollPaymentStatus = async (reference) => {
-    const maxAttempts = 30; // 5 minutes with 10-second intervals
-    let attempts = 0;
-
-    const poll = async () => {
-      try {
-        const response = await api.checkPaymentStatus(reference);
-        
-        if (response.success && response.status === 'success') {
-          setSuccess('Payment successful! Course enrolled successfully.');
-          
-          // Refresh enrollments
-          try {
-            const mine = await api.myEnrollments(user.id);
-            setEnrollments(mine.enrollments || []);
-          } catch (e) {
-            setEnrollments(prev => [...prev, { course_id: selected.id, status: 'active' }]);
-          }
-
-          // Close modal after delay
-          setTimeout(() => {
-            setSelected(null);
-            setPayStep('');
-            setSuccess('');
-          }, 3000);
-          return;
-        }
-
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(poll, 10000); // Poll every 10 seconds
-        } else {
-          setError('Payment verification timeout. Please check your payment status manually.');
-        }
-      } catch (err) {
-        console.error('Status check error:', err);
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(poll, 10000);
-        }
-      }
-    };
-
-    // Start polling after 5 seconds
-    setTimeout(poll, 5000);
-  };
+  }
 
   useEffect(()=>{(async()=>{
     try{
@@ -182,7 +129,7 @@ function UserCourses(){
                       {enrolled ? (
                         <span title="Enrolled" style={{ color: '#10b981' }}><FiCheckCircle /></span>
                       ) : (
-                        <button className="icon-btn" title="Enroll" onClick={()=> setSelected(c)}>
+                        <button className="icon-btn" title="Enroll" onClick={()=> handleEnroll(c)}>
                           <FiPlusCircle />
                         </button>
                       )}
@@ -195,54 +142,33 @@ function UserCourses(){
         </table>
       </div>
 
-      {selected && (
-        <div className="modal-overlay" role="dialog" aria-modal="true">
-          <div className="modal-card">
-            <h3 className="modal-title">{selected.title}</h3>
-            <div className="row"><strong>Code:</strong> {(selected.description||'').match(/Code:\s*([^;]*)/)?.[1]||''}</div>
-            <div className="row"><strong>Duration:</strong> {(selected.description||'').match(/Duration:\s*([^;]*)/)?.[1]||''}</div>
-            <div className="row"><strong>Cost:</strong> {selected.price_amount} {selected.price_currency}</div>
-            <div className="row"><strong>Assigned Teachers:</strong> <CourseTeachers courseId={selected.id} /></div>
-            {error && (
-              <div className="error-message" style={{ color: '#ef4444', marginTop: '0.5rem', padding: '0.5rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '0.375rem' }}>
-                {error}
-              </div>
-            )}
-            {payStep !== 'method' ? (
-              <div className="modal-actions" style={{ marginTop: '0.75rem' }}>
-                <button className="modal-btn" onClick={()=> { setSelected(null); setError(''); setSuccess(''); }}>Close</button>
-                <button className="modal-btn primary" onClick={()=> setPayStep('method')}>Proceed to pay</button>
-              </div>
-            ) : (
-              <div className="pay-wrap" style={{ marginTop: '0.75rem' }}>
-                <div className="row" style={{ gap: '.5rem' }}>
-                  <label className="chip"><input type="radio" name="pm" checked={method==='fapshi'} onChange={()=> setMethod('fapshi')} /> <span>Fapshi (Mobile Money)</span></label>
-                  <label className="chip"><input type="radio" name="pm" checked={method==='mtn'} onChange={()=> setMethod('mtn')} /> <span>MTN MoMo</span></label>
-                  <label className="chip"><input type="radio" name="pm" checked={method==='orange'} onChange={()=> setMethod('orange')} /> <span>Orange Money</span></label>
-                  <label className="chip"><input type="radio" name="pm" checked={method==='card'} onChange={()=> setMethod('card')} /> <span>Card</span></label>
-                </div>
-                {method!=='card' ? (
-                  <div className="row">
-                    <label>Mobile Money Number</label>
-                    <input placeholder="e.g. 670000000" value={form.phone} onChange={(e)=> setForm(prev=> ({ ...prev, phone: e.target.value }))} />
-                  </div>
-                ) : (
-                  <>
-                    <div className="row"><label>Card Number</label><input placeholder="1234 5678 9012 3456" value={form.card} onChange={(e)=> setForm(prev=> ({ ...prev, card: e.target.value }))} /></div>
-                    <div className="row cols"><div><label>Expiry</label><input placeholder="MM/YY" value={form.expiry} onChange={(e)=> setForm(prev=> ({ ...prev, expiry: e.target.value }))} /></div><div><label>CVC</label><input placeholder="***" value={form.cvc} onChange={(e)=> setForm(prev=> ({ ...prev, cvc: e.target.value }))} /></div></div>
-                  </>
-                )}
-                <div className="modal-actions" style={{ marginTop: '0.75rem' }}>
-                  <button className="modal-btn" onClick={()=> { setPayStep(''); setError(''); }} disabled={processing}>Back</button>
-                  <button className="modal-btn primary" onClick={handlePayment} disabled={processing}>
-                    {processing ? 'Waiting for approval…' : 'Confirm & Pay'}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+      {error && (
+        <div className="error-message" style={{ color: '#ef4444', marginTop: '0.5rem', padding: '0.5rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '0.375rem' }}>
+          {error}
         </div>
       )}
+
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false)
+          setSelected(null)
+          setError('')
+        }}
+        course={selected}
+        onPaymentComplete={handlePaymentComplete}
+      />
+
+      <TransactionIdModal
+        isOpen={showTransactionModal}
+        onClose={() => {
+          setShowTransactionModal(false)
+          setSelected(null)
+          setError('')
+        }}
+        course={selected}
+        onSubmitTransactionId={handleTransactionIdSubmit}
+      />
 
       {success && <SuccessMessage message={success} onClose={()=> setSuccess('')} />}
     </div>

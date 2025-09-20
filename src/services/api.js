@@ -220,6 +220,32 @@ class ApiService {
   async getPaymentHistory() {
     return this.request('/payments/history');
   }
+
+  // Transactions
+  async submitTransactionId(payload) {
+    return this.request('/transactions/submit-transaction', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getPendingTransactions() {
+    return this.request('/transactions/pending-transactions');
+  }
+
+  async approveTransaction(enrollmentId) {
+    return this.request(`/transactions/approve-transaction/${enrollmentId}`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'approve' }),
+    });
+  }
+
+  async rejectTransaction(enrollmentId) {
+    return this.request(`/transactions/approve-transaction/${enrollmentId}`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'reject' }),
+    });
+  }
 }
 
 export default new ApiService();

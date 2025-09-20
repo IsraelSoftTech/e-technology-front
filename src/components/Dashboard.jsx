@@ -10,6 +10,7 @@ import Verification from './Verification'
 import Teachers from './Teachers'
 import Users from './Users'
 import AdminStudent from './AdminStudent'
+import AdminTransactions from './AdminTransactions'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import UserSide from './UserSide'
@@ -43,6 +44,7 @@ function Dashboard() {
             <Route path="/courses" element={<AdminCourse />} />
             <Route path="/teachers" element={<Teachers />} />
             <Route path="/students" element={<AdminStudent />} />
+            <Route path="/transactions" element={<AdminTransactions />} />
             <Route path="/users" element={<Users />} />
             <Route path="/verification" element={<Verification />} />
             <Route path="*" element={<Navigate to="/" replace />} />

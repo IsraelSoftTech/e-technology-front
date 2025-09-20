@@ -16,6 +16,7 @@ function AdminCourse() {
     cost: '',
     levels: [],
     imageUrl: '',
+    paymentLink: '',
   })
   const [editing, setEditing] = useState(null)
   const [confirmId, setConfirmId] = useState(null)
@@ -41,17 +42,17 @@ function AdminCourse() {
     try {
       const autoCode = `CRS-${form.name.trim().slice(0,3).toUpperCase()}-${Date.now().toString().slice(-4)}`
       if (editing) {
-        const desc = `Code: ${form.code || autoCode}; Duration: ${form.duration || ''}; Levels: ${(form.levels||[]).join(', ')}; Image: ${form.imageUrl || ''}`
-        const res = await api.updateCourse(editing.id, { title: form.name, description: desc })
+        const desc = `Code: ${form.code || autoCode}; Duration: ${form.duration || ''}; Levels: ${(form.levels||[]).join(', ')}; Image: ${form.imageUrl || ''}; PaymentLink: ${form.paymentLink || ''}`
+        const res = await api.updateCourse(editing.id, { title: form.name, description: desc, paymentLink: form.paymentLink })
         setSuccess(res.message || 'Course updated')
         setCourses((prev) => prev.map(c => c.id === editing.id ? res.course : c))
       } else {
-        const payload = { title: form.name, code: autoCode, duration: form.duration, cost: form.cost, levels: form.levels, imageUrl: form.imageUrl }
+        const payload = { title: form.name, code: autoCode, duration: form.duration, cost: form.cost, levels: form.levels, imageUrl: form.imageUrl, paymentLink: form.paymentLink }
         const res = await api.createCourse(payload)
         setSuccess(res.message || 'Course created successfully')
         setCourses((prev) => [res.course, ...prev])
       }
-      setForm({ name: '', code: '', duration: '', cost: '', levels: [], imageUrl: '' })
+      setForm({ name: '', code: '', duration: '', cost: '', levels: [], imageUrl: '', paymentLink: '' })
       setShowForm(false)
       setEditing(null)
     } catch (err) {
@@ -190,6 +191,11 @@ function AdminCourse() {
             </div>
           </div>
           <div className="row">
+            <label>Payment Link</label>
+            <input name="paymentLink" value={form.paymentLink} onChange={onChange} placeholder="https://fapshi.com/pay/..." />
+            <small>Paste the Fapshi payment link for this course</small>
+          </div>
+          <div className="row">
             <button className="btn primary" type="submit">Save Course</button>
           </div>
         </form>
@@ -232,7 +238,8 @@ function AdminCourse() {
                   <td>
                     <button className="icon-btn" title="Edit" onClick={()=>{
                       const meta = parseMeta(c.description||'')
-                      setForm({ name: c.title || '', code: meta.code || '', duration: meta.duration || '', cost: c.price_amount || '', levels: (meta.levels||'').split(',').filter(Boolean), imageUrl: (c.image_url || (c.description||'').match(/Image:\s*([^;]*)/)?.[1] || '') })
+                      const paymentLinkMeta = (c.description||'').match(/PaymentLink:\s*([^;]*)/)?.[1] || ''
+                      setForm({ name: c.title || '', code: meta.code || '', duration: meta.duration || '', cost: c.price_amount || '', levels: (meta.levels||'').split(',').filter(Boolean), imageUrl: (c.image_url || (c.description||'').match(/Image:\s*([^;]*)/)?.[1] || ''), paymentLink: paymentLinkMeta })
                       setEditing(c)
                       setShowForm(true)
                     }}><FiEdit2 /></button>
