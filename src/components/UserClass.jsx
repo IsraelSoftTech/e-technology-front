@@ -82,8 +82,9 @@ function UserClass(){
     try{
       const start = new Date(`${form.date}T${form.time}:00`)
       const end = form.endTime ? new Date(`${form.date}T${form.endTime}:00`) : null
-      const meet_link = form.roomType === 'custom' ? 'custom:pending' : (form.meetLink || null)
-      await api.createCourseClass(courseId, { teacherId: user.id, start_time: start.toISOString(), end_time: end ? end.toISOString() : null, objective: form.objective, meet_link, room_type: form.roomType })
+      // Force Google Meet only
+      const meet_link = form.meetLink || null
+      await api.createCourseClass(courseId, { teacherId: user.id, start_time: start.toISOString(), end_time: end ? end.toISOString() : null, objective: form.objective, meet_link, room_type: 'google' })
       const cls = await api.listCourseClasses(courseId)
       const list = (cls.classes||[]).filter(c=> c.status !== 'cancelled')
       setClasses(list)
@@ -258,22 +259,9 @@ function UserClass(){
               <input value={form.objective} onChange={(e)=> setForm(prev=> ({ ...prev, objective: e.target.value }))} placeholder="Learning objective" />
             </div>
             <div className="row">
-              <label>Room Type</label>
-              <div style={{ display:'flex', gap: '1rem', alignItems:'center' }}>
-                <label style={{ display:'inline-flex', alignItems:'center', gap:'.25rem' }}>
-                  <input type="radio" name="roomType" checked={form.roomType==='google'} onChange={()=> setForm(prev=> ({ ...prev, roomType: 'google' }))} /> Google Meet
-                </label>
-                <label style={{ display:'inline-flex', alignItems:'center', gap:'.25rem' }}>
-                  <input type="radio" name="roomType" checked={form.roomType==='custom'} onChange={()=> setForm(prev=> ({ ...prev, roomType: 'custom' }))} /> Custom Room
-                </label>
-              </div>
+              <label>Google Meet Link</label>
+              <input value={form.meetLink} onChange={(e)=> setForm(prev=> ({ ...prev, meetLink: e.target.value }))} placeholder="https://meet.google.com/..." />
             </div>
-            {form.roomType === 'google' && (
-              <div className="row">
-                <label>Google Meet Link</label>
-                <input value={form.meetLink} onChange={(e)=> setForm(prev=> ({ ...prev, meetLink: e.target.value }))} placeholder="https://meet.google.com/..." />
-              </div>
-            )}
             <div className="modal-actions" style={{ marginTop: '0.75rem' }}>
               <button className="modal-btn" onClick={()=> setOpen(false)}>Cancel</button>
               <button className="modal-btn primary" onClick={schedule}>Save</button>

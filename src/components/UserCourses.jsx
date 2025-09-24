@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
 import './UserCourses.css'
-import { FiPlusCircle, FiCheckCircle } from 'react-icons/fi'
+import { FiPlusCircle, FiCheckCircle, FiXCircle } from 'react-icons/fi'
 import SuccessMessage from './SuccessMessage'
 import PaymentModal from './PaymentModal'
 import TransactionIdModal from './TransactionIdModal'
+import apiService from '../services/api'
 
 function UserCourses(){
   const { user } = useAuth()
@@ -18,9 +19,18 @@ function UserCourses(){
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
 
-  const handleEnroll = (course) => {
-    if (!course.payment_link) {
-      setError('Payment link not available for this course')
+  const handleEnroll = async (course) => {
+    try {
+      // Load global settings for Fapshi link
+      const s = await apiService.getSettings()
+      const link = s?.settings?.fapshi_payment_link
+      if (!link) {
+        setError('Payment link not configured. Contact support.')
+        return
+      }
+      course.payment_link = link
+    } catch (e) {
+      setError('Could not load payment settings')
       return
     }
     setSelected(course)
@@ -64,7 +74,7 @@ function UserCourses(){
       } else {
         const results = await Promise.allSettled([
           api.listCourses(),
-          user?.id ? api.myEnrollments(user.id) : Promise.resolve({ enrollments: [] })
+          user?.id ? api.myEnrollments(user.id, { all: true }) : Promise.resolve({ enrollments: [] })
         ])
         const coursesRes = results[0].status === 'fulfilled' ? results[0].value : { courses: [] }
         const mineRes = results[1].status === 'fulfilled' ? results[1].value : { enrollments: [] }
@@ -79,7 +89,7 @@ function UserCourses(){
       {user?.role !== 'teacher' && (
         <div className="dash-content" style={{ marginBottom: '1rem' }}>
           {useMemo(() => {
-            const enrolledIds = new Set(enrollments.map(e=> e.course_id))
+            const enrolledIds = new Set(enrollments.filter(e=> e.status === 'active').map(e=> e.course_id))
             const total = courses.length
             const enrolled = [...enrolledIds].length
             const unenrolled = Math.max(total - enrolled, 0)
@@ -114,7 +124,7 @@ function UserCourses(){
               const m = (c.description||'')
               const code = (m.match(/Code:\s*([^;]*)/)||[])[1]||''
               const duration = (m.match(/Duration:\s*([^;]*)/)||[])[1]||''
-              const enrolled = enrollments.some(e=> e.course_id === c.id)
+              const enrolled = enrollments.some(e=> e.course_id === c.id && e.status === 'active')
               return (
                 <tr key={c.id} className={(user?.role==='teacher' || enrolled) ? 'clickable' : ''} onClick={()=>{
                   if (user?.role==='teacher' || enrolled){
@@ -124,14 +134,27 @@ function UserCourses(){
                   <td>{c.title}</td>
                   <td>{code}</td>
                   <td>{duration}</td>
-                  {user?.role !== 'teacher' && (
+              {user?.role !== 'teacher' && (
                     <td>
                       {enrolled ? (
                         <span title="Enrolled" style={{ color: '#10b981' }}><FiCheckCircle /></span>
                       ) : (
-                        <button className="icon-btn" title="Enroll" onClick={()=> handleEnroll(c)}>
-                          <FiPlusCircle />
-                        </button>
+                        (()=>{
+                          const enr = enrollments.find(e=> e.course_id === c.id)
+                          const isRejected = !!(enr && enr.status === 'rejected')
+                          return (
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '.5rem' }}>
+                              {isRejected && (
+                                <span title="Previous transaction rejected" style={{ color: '#ef4444', display: 'inline-flex' }}>
+                                  <FiXCircle />
+                                </span>
+                              )}
+                              <button className="icon-btn" title="Enroll" onClick={()=> handleEnroll(c)}>
+                                <FiPlusCircle />
+                              </button>
+                            </div>
+                          )
+                        })()
                       )}
                     </td>
                   )}

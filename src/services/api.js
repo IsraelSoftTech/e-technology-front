@@ -94,8 +94,20 @@ class ApiService {
   async classesCount() {
     return this.request('/metrics/classes/count');
   }
+  async scheduledClassesCount() {
+    return this.request('/metrics/classes/scheduled-count');
+  }
+  async ongoingClassesCount() {
+    return this.request('/metrics/classes/ongoing');
+  }
   async transactionsCount() {
     return this.request('/metrics/transactions/count');
+  }
+  async activeTransactionsCount() {
+    return this.request('/metrics/transactions/active-count');
+  }
+  async confirmedTransactionsAmount() {
+    return this.request('/metrics/transactions/confirmed-amount');
   }
   async overviewMetrics() {
     return this.request('/metrics/overview');
@@ -139,6 +151,9 @@ class ApiService {
   async listCourseClasses(courseId) {
     return this.request(`/courses/${courseId}/classes`)
   }
+  async listAllClasses() {
+    return this.request(`/courses/classes/all`)
+  }
   async createCourseClass(courseId, payload) {
     return this.request(`/courses/${courseId}/classes`, { method: 'POST', body: JSON.stringify(payload) })
   }
@@ -166,6 +181,9 @@ class ApiService {
   }
   async myTeacherApplications(userId) {
     return this.request(`/teachers/my/list?userId=${encodeURIComponent(userId)}`)
+  }
+  async deleteMyTeacherApplication(id, userId) {
+    return this.request(`/teachers/${encodeURIComponent(id)}?userId=${encodeURIComponent(userId)}`, { method: 'DELETE' })
   }
   async listTeacherApplications() {
     return this.request('/teachers/applications')
@@ -198,8 +216,9 @@ class ApiService {
   }
 
   // Enrollments
-  async myEnrollments(userId) {
-    return this.request(`/enrollments/my?userId=${encodeURIComponent(userId)}`)
+  async myEnrollments(userId, { all = false } = {}) {
+    const q = all ? '&all=true' : ''
+    return this.request(`/enrollments/my?userId=${encodeURIComponent(userId)}${q}`)
   }
   async createEnrollment(courseId, studentId) {
     return this.request('/enrollments', { method: 'POST', body: JSON.stringify({ courseId, studentId }) })
@@ -219,6 +238,20 @@ class ApiService {
 
   async getPaymentHistory() {
     return this.request('/payments/history');
+  }
+
+  // Activity logs
+  async listActivity(params = {}) {
+    const q = new URLSearchParams()
+    if (params.actorId) q.set('actorId', params.actorId)
+    if (params.action) q.set('action', params.action)
+    if (params.entityType) q.set('entityType', params.entityType)
+    if (params.limit) q.set('limit', String(params.limit))
+    const qs = q.toString()
+    return this.request(`/logs${qs ? `?${qs}` : ''}`)
+  }
+  async clearActivity() {
+    return this.request('/logs', { method: 'DELETE' })
   }
 
   // Transactions
@@ -245,6 +278,26 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ action: 'reject' }),
     });
+  }
+
+  // Settings
+  async getSettings() {
+    return this.request('/settings');
+  }
+  async saveSettings(payload) {
+    return this.request('/settings', { method: 'PUT', body: JSON.stringify(payload) });
+  }
+
+  // Teacher fee submission
+  async submitTeacherFee(payload) {
+    return this.request('/transactions/teacher-fee/submit', { method: 'POST', body: JSON.stringify(payload) });
+  }
+
+  async approveTeacherFee(feeId) {
+    return this.request(`/transactions/approve-teacher-fee/${feeId}`, { method: 'POST', body: JSON.stringify({ action: 'approve' }) });
+  }
+  async rejectTeacherFee(feeId) {
+    return this.request(`/transactions/approve-teacher-fee/${feeId}`, { method: 'POST', body: JSON.stringify({ action: 'reject' }) });
   }
 }
 

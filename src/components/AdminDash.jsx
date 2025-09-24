@@ -16,8 +16,8 @@ function AdminDash() {
     try{const t=await api.teachersCount();setTeacherCount(t.count||0)}catch(e){}
     try{const s=await api.studentsCount();setStudentCount(s.count||0)}catch(e){}
     try{const c=await api.coursesCount();setCourseCount(c.count||0)}catch(e){}
-    try{const cl=await api.classesCount();setClassCount(cl.count||0)}catch(e){}
-    try{const tx=await api.transactionsCount();setTxnCount(tx.count||0)}catch(e){}
+    try{const cl=await api.scheduledClassesCount();setClassCount(cl.count||0)}catch(e){}
+    try{const tx=await api.activeTransactionsCount();setTxnCount(tx.count||0)}catch(e){}
     try{const ov=await api.overviewMetrics();setOverview(ov.series||[])}catch(e){}
   })()},[])
   return (

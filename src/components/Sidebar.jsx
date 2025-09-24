@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { FiMenu, FiGrid, FiBookOpen, FiCalendar, FiUsers, FiUserCheck, FiShield, FiCheckSquare, FiCreditCard, FiSettings, FiX } from 'react-icons/fi'
+import { FiMenu, FiGrid, FiBookOpen, FiCalendar, FiUsers, FiUserCheck, FiShield, FiCheckSquare, FiCreditCard, FiSettings, FiX, FiActivity } from 'react-icons/fi'
 import './Sidebar.css'
 
 const ALL_ITEMS = [
@@ -14,6 +14,7 @@ const ALL_ITEMS = [
   { key: 'verification', label: 'Verification', icon: FiShield, roles: ['admin'] },
   { key: 'attendance', label: 'Attendance', icon: FiCheckSquare, roles: ['admin','teacher'] },
   { key: 'transactions', label: 'Transactions', icon: FiCreditCard, roles: ['admin'] },
+  { key: 'activity', label: 'Activity Logs', icon: FiActivity, roles: ['admin'] },
   { key: 'settings', label: 'Settings', icon: FiSettings, roles: ['admin','teacher','student'] },
 ]
 

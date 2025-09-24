@@ -10,16 +10,21 @@ function AdminTransactions() {
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
   const [processing, setProcessing] = useState({})
+  const [confirmedTotal, setConfirmedTotal] = useState(0)
 
   const loadTransactions = async () => {
     try {
       setLoading(true)
-      const response = await api.getPendingTransactions()
+      const [response, totalRes] = await Promise.all([
+        api.getPendingTransactions(),
+        api.confirmedTransactionsAmount(),
+      ])
       if (response.success) {
         setTransactions(response.transactions || [])
       } else {
         setError('Failed to load transactions')
       }
+      setConfirmedTotal(Number(totalRes.amount || 0))
     } catch (err) {
       setError(err.message || 'Failed to load transactions')
     } finally {
@@ -38,7 +43,7 @@ function AdminTransactions() {
       
       if (response.success) {
         setSuccess('Transaction approved successfully!')
-        await loadTransactions() // Reload the list
+        await loadTransactions() // keep all transactions visible
       } else {
         setError(response.error || 'Failed to approve transaction')
       }
@@ -56,7 +61,7 @@ function AdminTransactions() {
       
       if (response.success) {
         setSuccess('Transaction rejected successfully!')
-        await loadTransactions() // Reload the list
+        await loadTransactions() // keep all transactions visible
       } else {
         setError(response.error || 'Failed to reject transaction')
       }
@@ -98,15 +103,26 @@ function AdminTransactions() {
       )}
 
       <div className="admin-transactions-table-wrap">
+        <div className="dash-content" style={{ marginBottom: '1rem', display:'flex', gap:'1rem', flexWrap:'wrap' }}>
+          <div className="stat-card">
+            <div className="stat-count">{confirmedTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} XAF</div>
+            <div className="stat-label">Total Confirmed Amount</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-count">{transactions.filter(t => t.status === 'active').reduce((sum, t) => sum + Number(t.amount || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} XAF</div>
+            <div className="stat-label">Sum of Active Transactions</div>
+          </div>
+        </div>
         <table className="admin-transactions-table">
           <thead>
             <tr>
               <th>User Name</th>
-              <th>Course</th>
+              <th>Course / Type</th>
               <th>Amount</th>
               <th>Transaction ID</th>
               <th>Phone Number</th>
               <th>Date</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -134,10 +150,16 @@ function AdminTransactions() {
                     </div>
                   </td>
                   <td>
-                    <div className="admin-transactions-course-info">
-                      <div className="title">{tx.course_title}</div>
-                      <div className="cost">Cost: {tx.course_cost} XAF</div>
-                    </div>
+                    {tx.type === 'teacher_fee' ? (
+                      <div className="admin-transactions-course-info">
+                        <div className="title">Teacher Application Fee</div>
+                      </div>
+                    ) : (
+                      <div className="admin-transactions-course-info">
+                        <div className="title">{tx.course_title}</div>
+                        <div className="cost">Cost: {tx.course_cost} XAF</div>
+                      </div>
+                    )}
                   </td>
                   <td>
                     <div className="admin-transactions-amount">
@@ -160,10 +182,15 @@ function AdminTransactions() {
                     </div>
                   </td>
                   <td>
+                    <div className={`admin-transactions-status status-${tx.status}`}>
+                      {tx.status}
+                    </div>
+                  </td>
+                  <td>
                     <div className="admin-transactions-actions">
                       <button
                         className="admin-transactions-btn approve"
-                        onClick={() => handleApprove(tx.enrollment_id)}
+                        onClick={() => tx.type === 'teacher_fee' ? api.approveTeacherFee(tx.fee_id).then(loadTransactions) : handleApprove(tx.enrollment_id)}
                         disabled={processing[tx.enrollment_id]}
                         title="Approve Transaction"
                       >
@@ -175,7 +202,7 @@ function AdminTransactions() {
                       </button>
                       <button
                         className="admin-transactions-btn reject"
-                        onClick={() => handleReject(tx.enrollment_id)}
+                        onClick={() => tx.type === 'teacher_fee' ? api.rejectTeacherFee(tx.fee_id).then(loadTransactions) : handleReject(tx.enrollment_id)}
                         disabled={processing[tx.enrollment_id]}
                         title="Reject Transaction"
                       >
